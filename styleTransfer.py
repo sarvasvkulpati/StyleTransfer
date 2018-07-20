@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 import tensorflow as tf
 
+
 def show_image(image, figsize=None, show_shape=False):
     if figsize is not None:
         plt.figure(figsize=figsize)
@@ -16,10 +17,12 @@ def show_image(image, figsize=None, show_shape=False):
     plt.yticks([])
     plt.show()
 
-def preprocess(img):                  
-    img = img.astype('float64')        
-    img = np.expand_dims(img, axis=0)  
-    return keras.applications.vgg16.preprocess_input(img)
+def preprocess(img):    
+	img = img.copy()              
+	img = img.astype('float64')
+	img = img[:,:,:3]         
+	img = np.expand_dims(img, axis=0) 
+	return keras.applications.vgg16.preprocess_input(img)
 
 def initialize_variables(content, style):
   content_img   = K.variable(preprocess(content))
@@ -60,7 +63,7 @@ def calc_style_loss(layer_dict, style_layer_names):
         generated_features = layer.output[2, :, :, :] 
         loss += style_loss(style_features, generated_features) 
     return loss / len(style_layer_names)
-def variation_loss(x):
+def calc_variation_loss(x):
     row_diff = K.square(x[:, :-1, :-1, :] - x[:, 1:,    :-1, :])
     col_diff = K.square(x[:, :-1, :-1, :] - x[:,  :-1, 1:,   :])
     return K.sum(K.pow(row_diff + col_diff, 1.25))
@@ -143,7 +146,7 @@ generated = sp.misc.imresize(generated, TARGET_SIZE)
 show_image(generated, show_shape=True)
 
 
-transfer_style(
+generated = transfer_style(
     content, 
     generated,
     ['block5_conv2'], 
@@ -155,5 +158,6 @@ transfer_style(
     content_loss_ratio=0.05, 
     style_loss_ratio=1.0, 
     variation_loss_ratio=0.3,               
-    steps=100,
+    steps=1,
     learning_rate=0.01)
+plt.imsave(fname="output.jpg", arr = generated)
