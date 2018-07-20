@@ -132,10 +132,10 @@ def deprocess(img):
     return img.astype('uint8')         
   
   
-content = plt.imread('./original.jpeg') 
+content = plt.imread('./content.jpg') 
 show_image(content, show_shape=True)
 
-generated = plt.imread('./datasets.jpg')      
+generated = plt.imread('./style.jpg')      
 show_image(generated, show_shape=True)
 
 TARGET_SIZE = content.shape[:2]
